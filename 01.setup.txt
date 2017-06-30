@@ -1,0 +1,103 @@
+﻿该文档记录了iAP体验环境构成的安装配置方法。
+关于iAP体验环境构成的细节信息请参考02.readme.txt
+
+■安装前提
+
+  硬件及OS条件:
+  ・保证稳定运行的PC（推荐CPU 3GHz以上）
+  ・内存容量推荐最小4GB（推荐8GB或以上）
+  ・64位Windows操作系统。（Windows 7 SP1以上）
+  ・iAP体验环境需要安装在C:\imart目录，请确认C盘有3GB以上系统空间。
+  ・Internet Explorer 11
+  软件条件:
+  ・iAP体验环境自带JDK1.8。如果已经安装过JDK的话，会在iAP体验环境安装过程中被替换。
+    如有需要请手动修改安装配置文件：C:\imart\setup\setupenv.bat
+  ・iAP体验环境自带数据库PostgreSQL9.3。如果已经安装过PostgreSQL的话，可能会引起数据库安装冲突。
+    如果要继续使用已经安装的PostgreSQL的话，在安装时请注意以下内容：
+    1.安装时省略安装方法步骤2，不运行C:\imart\setup\installdb.bat。
+    2.修改PostgreSQL的管理员账号postgres的密码为postgres(用户名和密码相同)。
+    3.手动建立名称为iap_db的空数据库。onwer为postgres。继续安装步骤3
+    4.如果已经安装的PostgreSQL的版本不是9.3，iap体验环境安装完成后请复制相应数据库版本的
+      JDBC库到目录C:\imart\project\work\resin\lib。
+  其他:
+  ・需要有系统管理员权限的用户进行安装iAP体验环境。
+  ・请确认没有设定过和Resin，Cassandra等iAP体验环境相关的OS系统环境变量（例如RESIN_HOME）。否则可能会出现冲突。
+  ・请确认Windows Update更新为最新状态。
+
+  注：该体验包的安装在Windows 7 SP1下测试通过。
+
+■安装方法
+
+  请按以下步骤进行安装，如果安装中出现问题，请参考文档最后部分的【安装问题对策】。
+
+  1.将iAP体验安装环境zip文件解压到c:\。解压后请确认存在c:\imart目录
+    注：解压后的目录结构请参考readme.txt
+
+  以下步骤需要以系统管理员形式运行。或者以系统管理员形式运行命令行窗口（cmd），在其中运行。
+
+  2.进行数据库安装（PostgreSQL）
+    运行C:\imart\setup\installdb.bat
+  3.进行数据库导入
+    运行C:\imart\setup\importdb.bat
+  4.进行环境变量配置
+    运行C:\imart\setup\setupenv.bat
+
+■体验方法
+  1.运行体验工程的AP服务器Resin。
+    启动方法1：通过运用方式启动
+    1.1 运行cassandra和AP服务器Resin
+        运行C:\imart\cassandra快捷方式。
+        运行C:\imart\resin快捷方式。
+        当运行窗口日志出现 ...  ProResin[id=app-0] started ... 内容时，服务启动成功。
+        注：停止相关服务时，只要关闭运行窗口即可。
+    启动方法2：通过开发调试模式启动
+    1.1 运行eBuilder
+        运行C:\imart\eBuilder8的快捷方式，或运行C:\imart\dev\eBuilder8\eBuilder8.exe
+        确认选择工作空间Workspace为C:\imart\project\work\workspace
+        注：首次运行是会要求确认并同意试用许可。
+    1.2 运行AP服务器Resin。
+        在eBuilder中下部的服务器分页中，在唯一的服务器Debug Server上点击鼠标右键，选择【启动】或【Debug调试】菜单。
+        将同时启动Resin和Cassandra服务
+        当控制台日志出现 ...  ProResin[id=app-0] started ... 内容时，服务启动成功。
+        注：停止相关服务时，在eBuilder中下部的服务器分页中，在唯一的服务器Debug Server上点击鼠标右键，选择【停止】菜单。
+  2.登陆iAP体验环境，进行操作体验
+    打开浏览器，输入以下URL：
+    http://localhost:8080/imart/login     登陆用户名：tenant  登陆密码：无
+
+    具体体验的操作方法可以参考以下文档：
+    Tenant管理员操作手册：
+    http://www-zh.intra-mart.jp/document/library/iap/public/operation/tenant_administrator_guide/index.html
+    一般用户操作手册：
+    http://www-zh.intra-mart.jp/document/library/iap/public/iap_release_note/index.html
+
+    注1：如需体验IMBox相关功能,登陆iAP体验环境后可以从Top->IMBox菜单体验IMbox的功能。前提是要运行Cassandra服务。
+    注2：如需体验全文检索相关功能，登陆登陆iAP体验环境后，从右上角放大镜图标进行体验。
+         前提是需要通过C:\imart\solr的快捷方式运行solr服务。
+    注3：iAP体验环境的试用期间为首次运行iAP体验环境起60天。
+
+■安装问题对策
+
+  1.安装过程中出现缺少[mv*.dll]的错误信息。
+    对策：
+        可能是OS的VC库没有被正确安装或更新。
+        可以尝试使用Windows Update进行修复。或者运行以下安装文件（微软VC++发布库）尝试解决。
+        C:\imart\setup\other\vc_redist.x64.系列所有exe文件
+        安装完毕后重新启动电脑。
+
+  2.不能正常通过C:\imart\setup\installdb.bat安装数据库
+    对策：
+       可以手动运行以下文件安装PostgreSQL数据库。
+       C:\imart\setup\other\postgresql-9.3.5-1-windows-x64.exe
+
+       安装时需要安装在C:\imart\env\pgsql下，并设定PostgreSQL的管理员账号和密码均为postgres，其他采用默认配置。
+
+       如果执行postgresql-9.3.5-1-windows-x64.exe时出现需要VC++ runtime相关错误信息时，
+       可以尝试在执行时指定命令行参数【postgresql-9.3.5-1-windows-x64.exe --install_runtimes 0】，
+       或以管理员身份执行C:\imart\setup\other\safe_install_postgresql.bat
+       (该批处理中已经包含相关参数)
+
+  3.不能正常通过C:\imart\setup\importdb.bat导入数据库
+    对策：
+      可以尝试通过以管理员身份执行C:\imart\setup\reimportdb.bat尝试再次导入数据库
+
+

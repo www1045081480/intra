@@ -1,0 +1,221 @@
+﻿该文档记录了iAP体验环境构成的细节信息。
+关于iAP体验环境的安装配置请参考01.setup.txt
+
+■目录结构
+C:\imart
+├─dev                                             > 各开发工程可共用的开发工具目录
+│  └─eBuilder8                                     > iAP开发工具eBuilder
+├─env                                             > 各开发工程可共用的iAP中间件目录
+│  ├─Apache                                        > Web服务器Apache
+│  │                                                  （iAP推荐的AP服务器Resin也附带简单Web服务器功能，Apache非必需。
+│  │                                                  在iAP体验环境中预装了Apache，但提供的体验方法中并未使用该服务）
+│  ├─cassandra                                     > Cassandra (ImBox数据库)
+│  ├─Java                                          > JDK 1.8 供iAP开发工具和中间件使用
+│  ├─pgsql                                         > iAP用数据库服务器
+│  │   └─data                                       > iAP用数据库文件存放路径
+│  ├─tomcat                                        > Tomcat 用来运行全文搜索引擎服务
+│  │   └─solr                                       > 全文搜索引擎服务 Solr
+│  ├─wkhtmltopdf                                   > 用于体验iAP的VC、Forma自动报表生成的工具引擎
+│  └─tmp                                           > 临时目录
+│
+├project                                           > iAP开发工程管理目录
+│  ├─juggling                                      > 各项目Juggling的统一管理用目录
+│  │   └─workspace                                   > 各项目Juggling工程管理用Workspace
+│  │          ├─imart                                   > 生成iAP体验环境的War文件的Juggling工程(工程名：imart)目录
+│  │          └─.repository                             > iAP的War文件构成用本地数据源目录
+│  │                                                         采用统一的workspace去管理各项目的Juggling工程的目的是
+│  │                                                         可以共用一套数据源，节省硬盘容量。
+│  ├─work                                        > iAP体验开发工程(工程名：work)管理用目录
+│  │   ├─resin                                   > 该开发工程开发、测试时使用的AP服务器Resin
+│  │   │  │                                        由于各项目开发过程中代码会发布到AP服务器Resin，
+│  │   │  │                                        所以各无关联的开发工程不能共用一个AP服务器Resin。
+│  │   │  │                                        建议根据开发工程在project目录下分别建立子目录进行管理。
+│  │   │  │                                        每个开发工程都建立各自的AP服务器Resin和
+│  │   │  │                                        各自的开发工程WorkSpace。每个开发工程的代码都发布到各自的
+│  │   │  │                                        AP服务器Resin中。即可以共用一个开发工具eBuilder切换
+│  │   │  │                                        各开发工程的Workspace进行运用。AP服务器Resin不公用。
+│  │   │  └ webapps/imart                        > 该体验开发工程在AP服务器Resin下的发布目录。
+│  │   │                                            eBuilder中开发的内容会被发布到该目录下再被AP服务器运行。
+│  │   └─workspace                               > 该工程用Workspace（各工程间通过eBuilder切换该Workspace）
+│  │          └─work                                  > 该开发工程目录
+│  └─...{其他开发工程目录}
+│        ├─resin{其他开发工程用AP服务器Resin}
+│        └─workspace{其他开发工程用代码Workspace}
+│              └─work{其他开发工程工程}
+├─setup                                            > 体验环境配置目录
+│  ├─ddl
+│  ├─other
+│  └─war
+│
+├─eBuilder.lnk                                     > iAP开发工具eBuilder运行快捷方式
+├─resin.lnk                                        > iAP的AP服务器Resin启动快捷方式，体验iAP需要启动该AP服务。
+│                                                     也可以通过eBuilder启动该AP服务器。
+├─cassandra.lnk                                    > Cassandra服务器启动快捷方式，体验ImBox需要启动该服务。
+│                                                     也可以通过eBuilder启动服务器。
+├─solr.lnk                                         > Solr服务器启动快捷方式，体验全文检索ContentsSearch需要
+│                                                     启动该服务。
+└─pgAdmin3.lnk                                     > PostgreSQL数据库管理工具启动快捷方式。
+
+除AP服务器Resin以外，其他开发工具和环境中间件各开发工程均可以共用。AP服务Resin推荐根据各开发工程分别构成。
+
+■iAP登陆URL及管理员配置信息
+ ・iAP系统管理页面：http://localhost:8080/imart/system/login    系统管理员账号及密码：system/密码无
+ ・iAP一般用户登录页面：http://localhost:8080/imart/login    Tenant管理员账号及密码：tenant/密码无
+
+■体验数据库相关信息
+ ・数据库名：iap_db
+ ・数据库管理员账号及密码：postgres/postgres
+
+■ 全文检索Solr服务相关信息
+ ・Solr服务正常运作确认URL
+  http://localhost:8983/solr/default/admin/
+
+■Cassandra相关配置信息
+  集群名：IMBox Cluster
+
+■其他信息
+ ・iAP的TenantID：default
+ ・iAP的Storage路径：C:\imart\project\work\resin\storage
+ ・体验环境所用到的主要端口信息：
+   Resin：8080，6800
+   Apache：80
+   Solr：8983
+   Cassandra：9160
+   PostgreSQL:5432
+
+   参考：http://www-zh.intra-mart.jp/document/library/iap/public/setup/iap_setup_guide/texts/appendix/port_list.html
+   注：如何判读端口被哪个进程所占用的命令
+       netstat -ano | findstr {查询端口号}
+
+■iAP体验环境构成中修改的默认配置文件内容
+
+・Cassandra服务器相关配置
+  修改对象文件：C:\imart\env\cassandra\conf\cassandra.yaml
+  修改内容：
+    ・cluster_name: 'IMBox Cluster'
+    ・data_file_directories:
+       - C:/imart/env/cassandra/data
+    ・commitlog_directory: C:/imart/env/cassandra/commitlog
+    ・saved_caches_directory: C:/imart/env/cassandra/saved_caches
+  修改对象文件：C:\imart\env\cassandra\conf\log4j-server.properties
+  修改内容：
+    ・log4j.appender.R.File=C:/imart/env/cassandra/system.log
+  修改对象文件：C:\imart\env\cassandra\bin\cassandra.bat
+  修改内容：
+    ・set JAVA_OPTS=-ea^
+        -javaagent:"%CASSANDRA_HOME%\lib\jamm-0.2.5.jar"^
+        -Xms512M^
+         -Xmx512M^
+  参考：
+    http://www.intra-mart.jp/document/library/iap/public/imbox/cassandra_administrator_guide/texts/install/windows.html
+
+・Solr服务器相关配置
+  修改对象文件：C:\imart\env\tomcat\solr\solr.xml
+  修改内容：
+     <cores adminPath="/admin/cores" >
+       <core name="default" instanceDir="default" />
+     </cores>
+  修改对象文件：C:\imart\env\tomcat\conf\server.xml
+  修改内容：
+    <Connector port="8983" protocol="HTTP/1.1"
+           connectionTimeout="20000"
+           redirectPort="8443"
+           URIEncoding="UTF-8"/>
+  参考：
+    http://www.intra-mart.jp/document/library/iap/public/im_contents_search/solr_administrator_guide/texts/setup/index.html#common-tomcat
+
+・Apache服务器相关配置
+  修改对象文件：C:\imart\env\Apache\conf\httpd.conf
+  修改内容：
+   ・修改1：
+     ServerRoot "C:/imart/env/Apache"
+     DocumentRoot "C:/imart/env/Apache/htdocs"
+       <Directory "C:/imart/env/Apache/htdocs">
+         ScriptAlias /cgi-bin/ "C:/imart/env/Apache/cgi-bin/"
+       <Directory "C:/imart/env/Apache/cgi-bin">
+   ・修改2：
+      LoadModule rewrite_module modules/mod_rewrite.so
+      LoadModule proxy_module modules/mod_proxy.so
+      LoadModule proxy_http_module modules/mod_proxy_http.so
+
+      AllowEncodedSlashes On
+      RewriteEngine On
+      RewriteCond %{REQUEST_URI} !^/imart/reverse_proxy/
+      RewriteCond %{REQUEST_URI} ^/imart/(.*\.gif|.*\.GIF)$ [OR]
+      RewriteCond %{REQUEST_URI} ^/imart/(.*\.png|.*\.PNG)$ [OR]
+      RewriteCond %{REQUEST_URI} ^/imart/(.*\.jpg|.*\.JPG)$ [OR]
+      RewriteCond %{REQUEST_URI} ^/imart/(.*\.css|.*\.CSS)$ [OR]
+      RewriteCond %{REQUEST_URI} ^/imart/(.*\.js|.*\.JS)$ [OR]
+      RewriteCond %{REQUEST_URI} ^/imart/(.*\.swf|.*\.SWF)$ [OR]
+      RewriteCond %{REQUEST_URI} ^/imart/(.*\.ico|.*\.ICO)$ [OR]
+      RewriteCond %{REQUEST_URI} ^/imart/(.*\.json|.*\.JSON)$ [OR]
+      RewriteCond %{REQUEST_URI} ^/imart/(.*\.jar|.*\.JAR)$ [OR]
+      RewriteCond %{REQUEST_URI} ^/imart/(.*\.xml|.*\.XML)$ [OR]
+      RewriteCond %{REQUEST_URI} ^/imart/(.*\.yaml|.*\.YAML)$ [OR]
+      RewriteCond %{REQUEST_URI} ^/imart/(.*\.txt|.*\.TXT)$ [OR]
+      RewriteCond %{REQUEST_URI} ^/imart/(.*\.html|.*\.HTML|.*\.htm|.*\.HTM)$
+      RewriteRule ^/imart/(.*)?$ /imart/$1
+
+      ProxyPreserveHost On
+      ProxyPass /imart/ http://127.0.0.1:8080/imart/ nocanon
+      ProxyPassReverse /imart/ http://127.0.0.1:8080/imart/ nocanon
+      ProxyTimeout 1200
+  创建了以下目录：
+    C:\imart\env\Apache\htdocs\imart
+
+  参考：
+    http://www.intra-mart.jp/document/library/iap/public/setup/iap_setup_guide/texts/install/apache_dso.html
+
+  注：如果Apache不能正常运行，需要相关C++库。请手动安装以下文件
+    C:\imart\setup\other\vc_redist.x64.exe
+    文件源：https://www.microsoft.com/zh-cn/download/confirmation.aspx?id=48145
+
+■Resin服务器相关配置
+  修改对象文件：C:\imart\project\work\resin\conf\resin.properties
+  修改内容：
+    jvm_args  : -Xmx2048m -Dfile.encoding=UTF-8 -Djava.io.tmpdir=/imart/env/tmp/resin-tmp
+  参考：
+    http://www.intra-mart.jp/document/library/iap/public/setup/iap_setup_guide/texts/install/windows/resin_windows.html
+
+■iAP的War文件构成时修改的配置（Juggling工程中修改）
+
+  修改对象文件：/conf/forma-config.xml
+  修改内容：BIS相关配置
+    修改源：http://www.intra-mart.jp/document/library/bis/public/bis_setup_guide/_downloads/2016Winter_forma-config_bis.zip
+    参考文档：http://www.intra-mart.jp/document/library/bis/public/bis_setup_guide/texts/create_war/forma_config.html
+  修改对象文件：无效SSO认证
+  修改内容：参考文档：http://www.intra-mart.jp/document/library/iap/public/setup/iap_setup_guide/texts/install/common/int_win_auth.html#win-auth-setting-how-to-disable
+  修改对象文件：/resin-web.xml
+  修改内容：数据库相关配置
+		<driver>
+			<type>org.postgresql.Driver</type>
+			<url>jdbc:postgresql://localhost:5432/iap_db</url>
+			<user>postgres</user>
+			<password>postgres</password>
+			<init-param>
+				<param-name>preparedStatementCacheQueries</param-name>
+				<param-value>20</param-value>
+			</init-param>
+		</driver>
+  修改对象文件：/conf/storage-config.xml
+  修改内容：
+    <root-path-name>${resin.home}/storage</root-path-name>
+  参考：
+    http://www.intra-mart.jp/document/library/iap/public/setup/iap_setup_guide/texts/create_war/configuration_file.html
+
+  复制以下JDBC库到目录C:\imart\project\work\resin\lib
+  ・sqljdbc41.jar
+  ・postgresql-9.3-1100.jdbc4.jar
+  ・ojdbc7.jar
+
+
+■ 其他
+  详细环境构筑信息请参考：
+    http://www-zh.intra-mart.jp/document/library/iap/public/iap_release_note/index.html
+    http://www-zh.intra-mart.jp/document/library/iap/public/setup/iap_setup_guide/index.html
+    http://www-zh.intra-mart.jp/document/library/iap/public/im_contents_search/solr_administrator_guide/index.html
+    http://www-zh.intra-mart.jp/document/library/iap/public/imbox/cassandra_administrator_guide/index.html
+    http://www-zh.intra-mart.jp/document/library/ebuilder/public/e_builder_setup_guide/index.html
+    http://www-zh.intra-mart.jp/document/library/ebuilder/public/e_builder_user_guide/index.html
+
+
